@@ -119,3 +119,25 @@ Returns [`Display`](structures/display.md) - The display nearest the specified p
 
 Returns [`Display`](structures/display.md) - The display that most closely
 intersects the provided bounds.
+
+### `screen.screenToDipRect(hwnd, rect)` _Windows_
+
+* `hwnd` Buffer
+* `rect` [Rectangle](structures/rectangle.md)
+
+Returns [`Rectangle`](structures/rectangle.md)
+
+Converts a screen physical rect to a screen DIP rect.
+The DPI scale is performed relative to the display nearest to `hwnd`.
+If `hwnd` is null, scaling will be performed to the display nearest to `rect`.
+
+### `screen.dipToScreenRect(hwnd, rect)` _Windows_
+
+* `hwnd` Buffer
+* `rect` [Rectangle](structures/rectangle.md)
+
+Returns [`Rectangle`](structures/rectangle.md)
+
+Converts a screen DIP rect to a screen physical rect.
+The DPI scale is performed relative to the display nearest to `hwnd`.
+If `hwnd` is null, scaling will be performed to the display nearest to `rect`.

@@ -16,7 +16,40 @@
 #include "ui/display/screen.h"
 #include "ui/gfx/geometry/point.h"
 
+#if defined(OS_WIN)
+#include "ui/display/win/screen_win.h"
+#endif
+
 #include "atom/common/node_includes.h"
+
+namespace mate {
+
+#if defined(OS_WIN)
+
+template <>
+struct Converter<HWND> {
+  static bool FromV8(v8::Isolate* isolate,
+                     v8::Local<v8::Value> value,
+                     HWND* out) {
+    if (!value.IsEmpty() && value->IsNull()) {
+      *out = nullptr;
+      return true;
+    }
+
+    if (!node::Buffer::HasInstance(value))
+      return false;
+
+    if (node::Buffer::Length(value) != sizeof(HWND))
+      return false;
+
+    *out = *reinterpret_cast<HWND*>(node::Buffer::Data(value));
+    return true;
+  }
+};
+
+#endif
+
+}  // namespace mate
 
 namespace atom {
 
@@ -79,6 +112,18 @@ display::Display Screen::GetDisplayMatching(const gfx::Rect& match_rect) {
   return screen_->GetDisplayMatching(match_rect);
 }
 
+#if defined(OS_WIN)
+
+gfx::Rect Screen::ScreenToDIPRect(HWND hwnd, const gfx::Rect& rect) {
+  return display::win::ScreenWin::ScreenToDIPRect(hwnd, rect);
+}
+
+gfx::Rect Screen::DIPToScreenRect(HWND hwnd, const gfx::Rect& rect) {
+  return display::win::ScreenWin::DIPToScreenRect(hwnd, rect);
+}
+
+#endif
+
 void Screen::OnDisplayAdded(const display::Display& new_display) {
   Emit("display-added", new_display);
 }
@@ -119,6 +164,10 @@ void Screen::BuildPrototype(v8::Isolate* isolate,
       .SetMethod("getPrimaryDisplay", &Screen::GetPrimaryDisplay)
       .SetMethod("getAllDisplays", &Screen::GetAllDisplays)
       .SetMethod("getDisplayNearestPoint", &Screen::GetDisplayNearestPoint)
+#if defined(OS_WIN)
+      .SetMethod("screenToDipRect", &Screen::ScreenToDIPRect)
+      .SetMethod("dipToScreenRect", &Screen::DIPToScreenRect)
+#endif
 #if defined(OS_MACOSX)
       .SetMethod("getMenuBarHeight", &Screen::getMenuBarHeight)
 #endif

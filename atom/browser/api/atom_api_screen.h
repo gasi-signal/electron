@@ -40,6 +40,11 @@ class Screen : public mate::EventEmitter<Screen>,
   display::Display GetDisplayNearestPoint(const gfx::Point& point);
   display::Display GetDisplayMatching(const gfx::Rect& match_rect);
 
+#if defined(OS_WIN)
+  gfx::Rect ScreenToDIPRect(HWND hwnd, const gfx::Rect& rect);
+  gfx::Rect DIPToScreenRect(HWND hwnd, const gfx::Rect& rect);
+#endif
+
 #if defined(OS_MACOSX)
   int getMenuBarHeight();
 #endif
